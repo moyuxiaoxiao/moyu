@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.orgMapperScan//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--上面  "http://mybatis.org/dtd/mybatis-3-config.dtd"
+是按照mybatis的mapper的规范来。
+有mapper标签大头，属性namespace，里面需要指定mappe  `priorty` INT(10) NOT NULL DEFAULT'0'  COMMENT '权重，权重越大越往前排显示' ,
+r对应的dao，实现对应的方法。
+是规红色的可以点击行头的灯泡提示 i开头的。-->
+<mapper namespace="com.imooc.demoapp.dao.AreaDao">
+    <select id="queryArea" resultType="com.imooc.demoapp.entity.Area">
+        select area_id ,area_name, priorty ,creat_time ,last_edit_time
+        from tb_area
+        order by priorty
+        desc
+    </select>
+    <!--//无论是多条list还是单条 mybatis 会自动识别 -->
+
+    <select id="queryAreaById" resultType="com.imooc.demoapp.entity.Area">
+
+        select area_id ,area_name, priorty ,creat_time ,last_edit_time
+        from tb_area t
+        where t.area_id =#{areaId}
+    </select>
+
+    <!--#{}， 获取到传进来的参数 ，因为传进了的只有个参数，可以任意名命名，多条 #{}
+        注意这里按参数名去引用的话会报如下错误，mybatis错误提示很细致，
+        这里明确给我们提示，匿名参数只能使用
+        arg1, arg0, param1, param2 类似的形式
+        这种传参方式的缺点是不够灵活，必须严格按照参数顺序来引用-->
+
+    <!--https://blog.csdn.net/bdqx_007/article/details/94836637mybatis 传递参数的7种方法
+     <select id="selectByGenderAndAge" resultMap="BaseResultMap" >
+      select *  from employee where gender = #{param1} and age = #{param2}
+    </select>-->
+
+    <insert id="insertArea" useGeneratedKeys="true" keyProperty="areaId"
+            keyColumn="area_id " parameterType="com.imooc.demoapp.entity.Area">
+        <!--useGeneratedKeys="true" 就是说明insert成功就返回主键值 area_id ,areaId
+        parameterType 另外传参的类型是实体类传参 如果是子类，,#{person.name}-->
+        insert into
+        tb_area (area_name , priorty , creat_time, last_edit_time)
+        values (#{areaName},#{priorty},#{creatTame},#{lastEditTime})
+    </insert>
+
+    <update id="updateArea" parameterType="com.imooc.demoapp.entity.Area">
+        update tb_area t
+        <!--set用标签是因为后面传入的参数需要if标签做判断不为空-->
+        <set>
+            <!--/*当属性areaName不为空，area_name就做修改，set上值areaName ，
+            其他的不为空也set上，这就是实体类的属性使用的是包装类*/-->
+            <if test="areaName !=null ">area_name =#{areaName},</if>
+            <if test="priorty !=null ">priorty =#{priorty},</if>
+            <!--<if test="creatTame !=null "> creat_time =#{creatTame},</if>
+                创建时间安业务不需要改变的，所以不做处理。lastEditTime是最近修改时间是需要保留。
+            -->
+            <if test="lastEditTime !=null ">last_edit_time =#{lastEditTime}</if>
+        </set>
+        where
+        t.area_id =#{areaId}
+    </update>
+
+    <delete id="deleteArea" parameterType="com.imooc.demoapp.entity.Area">
+        delete from
+        tb_area
+        where
+        area_id =(#{areaId})
+    </delete>
+    <!--mapper 自动话工具生成，https://blog.csdn.net/qq_36881106/article/details/82143232-->
+</mapper>
